@@ -1,5 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
+import axios from 'axios';
+
 import { ExampleHomebridgePlatform } from './platform';
 
 /**
@@ -62,33 +64,33 @@ export class ExamplePlatformAccessory {
      */
 
     // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    // const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
+    //   this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+    // const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
+    //   this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
 
-    /**
-     * Updating characteristics values asynchronously.
-     *
-     * Example showing how to update the state of a Characteristic asynchronously instead
-     * of using the `on('get')` handlers.
-     * Here we change update the motion sensor trigger states on and off every 10 seconds
-     * the `updateCharacteristic` method.
-     *
-     */
-    let motionDetected = false;
-    setInterval(() => {
-      // EXAMPLE - inverse the trigger
-      motionDetected = !motionDetected;
+    // /**
+    //  * Updating characteristics values asynchronously.
+    //  *
+    //  * Example showing how to update the state of a Characteristic asynchronously instead
+    //  * of using the `on('get')` handlers.
+    //  * Here we change update the motion sensor trigger states on and off every 10 seconds
+    //  * the `updateCharacteristic` method.
+    //  *
+    //  */
+    // let motionDetected = false;
+    // setInterval(() => {
+    //   // EXAMPLE - inverse the trigger
+    //   motionDetected = !motionDetected;
 
-      // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
+    //   // push the new value to HomeKit
+    //   motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
+    //   motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
 
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
+    //   this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
+    //   this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
+    // }, 10000);
   }
 
   /**
@@ -98,6 +100,19 @@ export class ExamplePlatformAccessory {
   async setOn(value: CharacteristicValue) {
     // implement your own code to turn your device on/off
     this.exampleStates.On = value as boolean;
+    const url = `http://10.0.0.151/rpc/Light.Set?id=0&on=${this.exampleStates.On}`;
+    try {
+      const response = await axios.get(url);
+      this.platform.log.debug('response: ', response.data);
+    } catch (error) {
+      this.platform.log.debug('error: ', error);
+    }
+
+    // if (device instanceof ShellyPlus1) {
+    //     const plus1 = device as ShellyPlus1;
+
+    //     // toggle the switch
+    //     await plus1.switch0.toggle();
 
     this.platform.log.debug('Set Characteristic On ->', value);
   }
@@ -117,7 +132,20 @@ export class ExamplePlatformAccessory {
    */
   async getOn(): Promise<CharacteristicValue> {
     // implement your own code to check if the device is on
-    const isOn = this.exampleStates.On;
+    // const isOn = this.exampleStates.On;
+    let isOn;
+
+    const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
+
+
+    try {
+      const response = await axios.get(url);
+      this.platform.log.debug('response: ', response.data);
+      isOn = response.data.output;
+    } catch (error) {
+      this.platform.log.debug('error: ', error);
+    }
+
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
 
