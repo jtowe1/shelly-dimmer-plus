@@ -6,4 +6,4 @@ export const PLATFORM_NAME = 'ShellyDimmerPlus';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'shelly-dimmer-plus';
+export const PLUGIN_NAME = 'homebridge-shelly-dimmer-plus';

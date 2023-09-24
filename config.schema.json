@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "ShellyDimmerPlus",
   "pluginType": "platform",
   "singular": true,
   "schema": {
