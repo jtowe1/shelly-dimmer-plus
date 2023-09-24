@@ -2,18 +2,18 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import axios from 'axios';
 
-import { ExampleHomebridgePlatform } from './platform';
+import { ShellyDimmerPlusPlatform } from './platform';
 
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class ExamplePlatformAccessory {
+export class ShellyDimmerPlusAccessory {
   private service: Service;
 
   constructor(
-    private readonly platform: ExampleHomebridgePlatform,
+    private readonly platform: ShellyDimmerPlusPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
 
