@@ -1,7 +1,11 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 
+import mDNS from 'multicast-dns';
+
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ShellyDimmerPlusAccessory } from './platformAccessory';
+
+const SERVICE_NAME = '_shelly._tcp.local';
 
 /**
  * HomebridgePlatform
@@ -11,6 +15,7 @@ import { ShellyDimmerPlusAccessory } from './platformAccessory';
 export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  protected mdns: mDNS.MulticastDNS | null = null;
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
@@ -21,6 +26,10 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     this.log.debug('Finished initializing platform:', this.config.name);
+
+    this.mdns = mDNS({
+      interface: undefined,
+    });
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
@@ -50,6 +59,39 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
+    let deviceId: string | null = null;
+    let ipAddress: string | null = null;
+
+    this.log.debug('setting up mDNS');
+    this.mdns!.on('response', (response) => {
+      let foundShellyDimmerPlus = false;
+      for (const answer of response.answers) {
+        if (answer.type === 'PTR' && answer.name === SERVICE_NAME && answer.data) {
+          if (answer.data.startsWith('shellypluswdus')) {
+            deviceId = answer.data.split('.', 1)[0];
+          }
+        }
+      }
+
+      for (const additionals of response.additionals) {
+        if (additionals.type === 'A') {
+          ipAddress = additionals.data;
+          foundShellyDimmerPlus = true;
+        }
+      }
+
+      if (foundShellyDimmerPlus && deviceId && ipAddress) {
+        this.log.info('Found Shelly Dimmer Plus', deviceId, ipAddress);
+        this.mdns!.destroy();
+      }
+    });
+
+    this.log.debug('querying mDNS');
+    this.mdns!.query(SERVICE_NAME, 'PTR', (error: Error | null) => {
+      if (error) {
+        this.log.error('error while querying:', error);
+      }
+    });
 
     // EXAMPLE ONLY
     // A real plugin you would discover accessories from the local network, cloud services
