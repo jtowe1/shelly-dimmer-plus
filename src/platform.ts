@@ -4,6 +4,7 @@ import mDNS from 'multicast-dns';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ShellyDimmerPlusAccessory } from './platformAccessory';
+import axios from 'axios';
 
 const SERVICE_NAME = '_shelly._tcp.local';
 
@@ -63,7 +64,7 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
     let ipAddress: string | null = null;
 
     this.log.debug('setting up mDNS');
-    this.mdns!.on('response', (response) => {
+    this.mdns!.on('response', async (response) => {
       let foundShellyDimmerPlus = false;
       for (const answer of response.answers) {
         if (answer.type === 'PTR' && answer.name === SERVICE_NAME && answer.data) {
@@ -83,6 +84,10 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
 
       if (foundShellyDimmerPlus && deviceId && ipAddress) {
         this.log.info('Found Shelly Dimmer Plus', deviceId, ipAddress);
+        this.log.debug('Getting device info');
+        const url = 'http://10.0.0.151/rpc/Shelly.GetDeviceInfo';
+        const response = await axios.get(url);
+        this.log.debug('Got info ', response.data);
         this.mdns!.destroy();
       }
     });
