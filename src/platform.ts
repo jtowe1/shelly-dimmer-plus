@@ -67,6 +67,7 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
       let foundShellyDimmerPlus = false;
       for (const answer of response.answers) {
         if (answer.type === 'PTR' && answer.name === SERVICE_NAME && answer.data) {
+          this.log.debug('response', response);
           if (answer.data.startsWith('shellypluswdus')) {
             deviceId = answer.data.split('.', 1)[0];
           }
