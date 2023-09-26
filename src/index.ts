@@ -7,5 +7,5 @@ import { ShellyDimmerPlusPlatform } from './platform';
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, ShellyDimmerPlusPlatform);
+    api.registerPlatform(PLATFORM_NAME, ShellyDimmerPlusPlatform);
 };

@@ -8,4 +8,4 @@ export interface IShellyDimmerPlus {
     ver: string;
     app: string;
     auth_en: boolean;
-  }
+}

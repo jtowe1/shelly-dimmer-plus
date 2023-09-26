@@ -14,17 +14,17 @@ export const MANUFACTURER = 'Shelly';
  * Each accessory may expose multiple services of different service types.
  */
 export class ShellyDimmerPlusAccessory {
-  private service: Service;
+    private service: Service;
 
-  constructor(
+    constructor(
     private readonly platform: ShellyDimmerPlusPlatform,
     private readonly accessory: PlatformAccessory,
-  ) {
+    ) {
 
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, MANUFACTURER)
-      .setCharacteristic(this.platform.Characteristic.Model, MODEL);
+        .setCharacteristic(this.platform.Characteristic.Manufacturer, MANUFACTURER)
+        .setCharacteristic(this.platform.Characteristic.Model, MODEL);
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
@@ -39,78 +39,78 @@ export class ShellyDimmerPlusAccessory {
 
     // register handlers for the On/Off Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+        .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
+        .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
 
     // register handlers for the Brightness Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this))    // SET - bind to the 'setBrightness` method below
-      .onGet(this.getBrightness.bind(this));   // GET - bind to the 'getBrightness` method below
-  }
-
-  async setOn(value: CharacteristicValue) {
-    const url = `http://10.0.0.151/rpc/Light.Set?id=0&on=${value as boolean}`;
-    try {
-      const response = await axios.get(url);
-      this.platform.log.debug('response: ', response.data);
-    } catch (error) {
-      this.platform.log.debug('error: ', error);
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        .onSet(this.setBrightness.bind(this))    // SET - bind to the 'setBrightness` method below
+        .onGet(this.getBrightness.bind(this));   // GET - bind to the 'getBrightness` method below
     }
 
-    this.platform.log.debug('Set Characteristic On ->', value);
-  }
+    async setOn(value: CharacteristicValue) {
+        const url = `http://10.0.0.151/rpc/Light.Set?id=0&on=${value as boolean}`;
+        try {
+            const response = await axios.get(url);
+            this.platform.log.debug('response: ', response.data);
+        } catch (error) {
+            this.platform.log.debug('error: ', error);
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
 
-
-  async getOn(): Promise<CharacteristicValue> {
-    let isOn;
-
-    const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
-
-    try {
-      const response = await axios.get(url);
-      this.platform.log.debug('response: ', response.data);
-      isOn = response.data.output;
-    } catch (error) {
-      this.platform.log.debug('error: ', error);
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        this.platform.log.debug('Set Characteristic On ->', value);
     }
 
-    this.platform.log.debug('Get Characteristic On ->', isOn);
 
-    return isOn;
-  }
+    async getOn(): Promise<CharacteristicValue> {
+        let isOn;
 
-  async setBrightness(value: CharacteristicValue) {
-    const url = `http://10.0.0.151/rpc/Light.Set?id=0&brightness=${value as number}`;
-    try {
-      const response = await axios.get(url);
-      this.platform.log.debug('response: ', response.data);
-    } catch (error) {
-      this.platform.log.debug('error: ', error);
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
+
+        try {
+            const response = await axios.get(url);
+            this.platform.log.debug('response: ', response.data);
+            isOn = response.data.output;
+        } catch (error) {
+            this.platform.log.debug('error: ', error);
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+
+        this.platform.log.debug('Get Characteristic On ->', isOn);
+
+        return isOn;
     }
 
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
-  }
+    async setBrightness(value: CharacteristicValue) {
+        const url = `http://10.0.0.151/rpc/Light.Set?id=0&brightness=${value as number}`;
+        try {
+            const response = await axios.get(url);
+            this.platform.log.debug('response: ', response.data);
+        } catch (error) {
+            this.platform.log.debug('error: ', error);
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
 
-  async getBrightness(): Promise<CharacteristicValue> {
-    let brightness;
-
-    const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
-
-    try {
-      const response = await axios.get(url);
-      this.platform.log.debug('response: ', response.data);
-      brightness = response.data.brightness;
-    } catch (error) {
-      this.platform.log.debug('error: ', error);
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        this.platform.log.debug('Set Characteristic Brightness -> ', value);
     }
 
-    this.platform.log.debug('Get Characteristic On ->', brightness);
+    async getBrightness(): Promise<CharacteristicValue> {
+        let brightness;
 
-    return brightness;
-  }
+        const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
+
+        try {
+            const response = await axios.get(url);
+            this.platform.log.debug('response: ', response.data);
+            brightness = response.data.brightness;
+        } catch (error) {
+            this.platform.log.debug('error: ', error);
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        }
+
+        this.platform.log.debug('Get Characteristic On ->', brightness);
+
+        return brightness;
+    }
 
 }
