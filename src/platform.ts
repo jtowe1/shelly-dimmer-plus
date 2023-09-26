@@ -7,6 +7,7 @@ import { ShellyDimmerPlusAccessory } from './platformAccessory';
 import axios from 'axios';
 
 const SERVICE_NAME = '_shelly._tcp.local';
+const MODEL = 'SNDM-0013US';
 
 /**
  * HomebridgePlatform
@@ -65,30 +66,28 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
 
     this.log.debug('setting up mDNS');
     this.mdns!.on('response', async (response) => {
-      let foundShellyDimmerPlus = false;
       for (const answer of response.answers) {
         if (answer.type === 'PTR' && answer.name === SERVICE_NAME && answer.data) {
-          this.log.debug('response', response);
-          if (answer.data.startsWith('shellypluswdus')) {
-            deviceId = answer.data.split('.', 1)[0];
-          }
+          this.log.debug('found a shelly device', response);
+          deviceId = answer.data.split('.', 1)[0];
         }
       }
 
       for (const additionals of response.additionals) {
         if (additionals.type === 'A') {
           ipAddress = additionals.data;
-          foundShellyDimmerPlus = true;
         }
       }
 
-      if (foundShellyDimmerPlus && deviceId && ipAddress) {
-        this.log.info('Found Shelly Dimmer Plus', deviceId, ipAddress);
+      if (deviceId && ipAddress) {
         this.log.debug('Getting device info');
         const url = 'http://10.0.0.151/rpc/Shelly.GetDeviceInfo';
-        const response = await axios.get(url);
-        this.log.debug('Got info ', response.data);
-        this.mdns!.destroy();
+        const deviceResponse = await axios.get(url);
+        this.log.debug('Got info ', deviceResponse.data);
+        if (deviceResponse.data.model === MODEL) {
+          this.log.debug('Found a dimmer plus, stopping mDNS');
+          this.mdns!.destroy();
+        }
       }
     });
 
