@@ -3,6 +3,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import axios from 'axios';
 
 import { ShellyDimmerPlusPlatform } from './platform';
+import { IShellyDimmerPlus } from './types';
 
 export const SERVICE_NAME = '_shelly._tcp.local';
 export const MODEL = 'SNDM-0013US';
@@ -19,6 +20,7 @@ export class ShellyDimmerPlusAccessory {
     constructor(
     private readonly platform: ShellyDimmerPlusPlatform,
     private readonly accessory: PlatformAccessory,
+    private readonly device: IShellyDimmerPlus,
     ) {
 
     // set accessory information
@@ -32,7 +34,8 @@ export class ShellyDimmerPlusAccessory {
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.name);
+    // this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.name);
+    this.service.setCharacteristic(this.platform.Characteristic.Name, this.device.name);
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
@@ -49,7 +52,8 @@ export class ShellyDimmerPlusAccessory {
     }
 
     async setOn(value: CharacteristicValue) {
-        const url = `http://10.0.0.151/rpc/Light.Set?id=0&on=${value as boolean}`;
+        const url = `http://${this.device.ipAddress}/rpc/Light.Set?id=0&on=${value as boolean}`;
+        this.platform.log.debug('setOn url: ', url);
         try {
             const response = await axios.get(url);
             this.platform.log.debug('response: ', response.data);
@@ -65,7 +69,8 @@ export class ShellyDimmerPlusAccessory {
     async getOn(): Promise<CharacteristicValue> {
         let isOn;
 
-        const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
+        const url = `http://${this.device.ipAddress}/rpc/Light.GetStatus?id=0`;
+        this.platform.log.debug('getOn url: ', url);
 
         try {
             const response = await axios.get(url);
@@ -82,7 +87,8 @@ export class ShellyDimmerPlusAccessory {
     }
 
     async setBrightness(value: CharacteristicValue) {
-        const url = `http://10.0.0.151/rpc/Light.Set?id=0&brightness=${value as number}`;
+        const url = `http://${this.device.ipAddress}/rpc/Light.Set?id=0&brightness=${value as number}`;
+        this.platform.log.debug('setBrightness url: ', url);
         try {
             const response = await axios.get(url);
             this.platform.log.debug('response: ', response.data);
@@ -97,7 +103,8 @@ export class ShellyDimmerPlusAccessory {
     async getBrightness(): Promise<CharacteristicValue> {
         let brightness;
 
-        const url = 'http://10.0.0.151/rpc/Light.GetStatus?id=0';
+        const url = `http://${this.device.ipAddress}/rpc/Light.GetStatus?id=0`;
+        this.platform.log.debug('getBrightness url: ', url);
 
         try {
             const response = await axios.get(url);

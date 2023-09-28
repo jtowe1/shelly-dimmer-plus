@@ -88,13 +88,7 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
                             const device = {
                                 name: deviceResponse.data.name,
                                 id: deviceResponse.data.id,
-                                mac: deviceResponse.data.mac,
-                                model: deviceResponse.data.model,
-                                gen: deviceResponse.data.gen,
-                                fw_id: deviceResponse.data.fw_id,
-                                ver: deviceResponse.data.ver,
-                                app: deviceResponse.data.app,
-                                auth_en: deviceResponse.data.auth_en,
+                                ipAddress,
                             } as IShellyDimmerPlus;
 
                             this.mdns!.destroy();
@@ -104,12 +98,12 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
 
                             if (existingAccessory) {
                                 this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-                                new ShellyDimmerPlusAccessory(this, existingAccessory);
+                                new ShellyDimmerPlusAccessory(this, existingAccessory, device);
                             } else {
                                 this.log.info('Adding new accessory:', device.name);
                                 const accessory = new this.api.platformAccessory(device.name, uuid);
-                                accessory.context.device = device;
-                                new ShellyDimmerPlusAccessory(this, accessory);
+                                // accessory.context.device = device;
+                                new ShellyDimmerPlusAccessory(this, accessory, device);
                                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
                             }
 
