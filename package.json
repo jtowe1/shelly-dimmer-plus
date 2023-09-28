@@ -3,7 +3,7 @@
   "displayName": "Shelly Dimmer Plus",
   "name": "homebridge-shelly-dimmer-plus",
   "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "description": "This plugin discovers and adds Shelly Dimmer Plus switches to HomeKit.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

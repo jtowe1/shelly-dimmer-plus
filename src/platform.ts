@@ -3,15 +3,10 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 import mDNS from 'multicast-dns';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ShellyDimmerPlusAccessory, SERVICE_NAME, MODEL } from './ShellyDimmerPlusAccessory';
+import { ShellyDimmerPlusAccessory } from './ShellyDimmerPlusAccessory';
 import axios from 'axios';
-import { IShellyDimmerPlus } from './types';
+import { IShellyDimmerPlus, MODEL, SERVICE_NAME } from './types';
 
-/**
- * HomebridgePlatform
- * This class is the main constructor for your plugin, this is where you should
- * parse the user config and discover/register accessories with Homebridge.
- */
 export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
     public readonly Service: typeof Service = this.api.hap.Service;
     public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
@@ -53,11 +48,6 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
         this.accessories.push(accessory);
     }
 
-    /**
-   * This is an example method showing how to register discovered accessories.
-   * Accessories must only be registered once, previously created accessories
-   * must not be registered again to prevent "duplicate UUID" errors.
-   */
     discoverDevices() {
         let deviceId: string | null = null;
         let ipAddress: string | null = null;
@@ -102,7 +92,6 @@ export class ShellyDimmerPlusPlatform implements DynamicPlatformPlugin {
                             } else {
                                 this.log.info('Adding new accessory:', device.name);
                                 const accessory = new this.api.platformAccessory(device.name, uuid);
-                                // accessory.context.device = device;
                                 new ShellyDimmerPlusAccessory(this, accessory, device);
                                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
                             }
